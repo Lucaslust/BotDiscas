@@ -1,0 +1,7 @@
+/_build/
+/deps/
+/.elixir_ls/
+lembretes.json
+*.env
+.env
+erl_crash.dump
