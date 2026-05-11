@@ -42,14 +42,14 @@ defmodule MeuBot.Consumer do
   defp dispatch("!conv " <> args, _msg) do
     case String.split(String.trim(args), " ", parts: 3) do
       [valor, origem, destino] -> Commands.conv(valor, origem, destino)
-      _ -> "❌ Uso correto: `!conv <valor> <moeda_origem> <moeda_destino>`\nEx: `!conv 100 USD BRL`"
+      _ -> "Uso correto: `!conv <valor> <moeda_origem> <moeda_destino>`\nEx: `!conv 100 USD BRL`"
     end
   end
 
   defp dispatch("!prevchuva " <> args, _msg) do
     case String.split(String.trim(args), " ", parts: 2) do
       [cidade, dias] -> Commands.prevchuva(cidade, dias)
-      _ -> "❌ Uso correto: `!prevchuva <cidade> <dias>`\nEx: `!prevchuva Fortaleza 5`"
+      _ -> "Uso correto: `!prevchuva <cidade> <dias>`\nEx: `!prevchuva Fortaleza 5`"
     end
   end
 
@@ -71,7 +71,7 @@ defmodule MeuBot.Consumer do
 
   defp dispatch("!ajuda", _msg) do
     """
-    📖 **Comandos disponíveis:**
+    **Comandos disponíveis:**
 
     `!ping` — Verifica se o bot está online
     `!clima <cidade>` — Clima atual de uma cidade

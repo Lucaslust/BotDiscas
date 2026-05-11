@@ -12,7 +12,7 @@ defmodule MeuBot.Commands do
   # ──────────────────────────────────────────────────────────────────────────
 
   def ping do
-    "🏓 Pong! Bot online e funcionando."
+    "Pong! Bot online e funcionando."
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -33,16 +33,15 @@ defmodule MeuBot.Commands do
       temp    = current["temperature_2m"]
       vento   = current["windspeed_10m"]
       umidade = current["relativehumidity_2m"]
-      icone   = weather_icon(current["weathercode"])
 
       """
-      #{icone} **Clima em #{nome}**
-      🌡️ Temperatura: #{temp}°C
-      💨 Vento: #{vento} km/h
-      💧 Umidade: #{umidade}%
+      **Clima em #{nome}**
+      Temperatura: #{temp}°C
+      Vento: #{vento} km/h
+      Umidade: #{umidade}%
       """
     else
-      {:error, msg} -> "❌ Erro ao buscar clima: #{msg}"
+      {:error, msg} -> "Erro ao buscar clima: #{msg}"
     end
   end
 
@@ -70,15 +69,15 @@ defmodule MeuBot.Commands do
                   |> Enum.join(", ")
 
       """
-      🎮 **#{game["name"]}**
-      ⭐ Rating: #{rating}/5
-      📅 Lançamento: #{released}
-      🎭 Gêneros: #{genres}
-      🖥️ Plataformas: #{platforms}
+      **#{game["name"]}**
+      Rating: #{rating}/5
+      Lançamento: #{released}
+      Gêneros: #{genres}
+      Plataformas: #{platforms}
       """
     else
-      [] -> "❌ Jogo \"#{nome}\" não encontrado."
-      {:error, msg} -> "❌ Erro ao buscar jogo: #{msg}"
+      [] -> "Jogo \"#{nome}\" não encontrado."
+      {:error, msg} -> "Erro ao buscar jogo: #{msg}"
     end
   end
 
@@ -99,11 +98,11 @@ defmodule MeuBot.Commands do
       resultado_fmt = :erlang.float_to_binary(resultado, decimals: 2)
       valor_fmt     = :erlang.float_to_binary(valor, decimals: 2)
 
-      "💱 #{valor_fmt} #{origem} = **#{resultado_fmt} #{destino}**"
+      "#{valor_fmt} #{origem} = **#{resultado_fmt} #{destino}**"
     else
-      :error         -> "❌ Valor inválido. Use números, ex: `!conv 100 USD BRL`"
-      nil            -> "❌ Moeda \"#{destino}\" não encontrada."
-      {:error, msg}  -> "❌ Erro ao buscar câmbio: #{msg}"
+      :error         -> "Valor inválido. Use números, ex: `!conv 100 USD BRL`"
+      nil            -> "Moeda \"#{destino}\" não encontrada."
+      {:error, msg}  -> "Erro ao buscar câmbio: #{msg}"
     end
   end
 
@@ -127,20 +126,16 @@ defmodule MeuBot.Commands do
       daily  = data["daily"]
       datas  = daily["time"]
       chuvas = daily["precipitation_sum"]
-      codigos = daily["weathercode"]
 
       previsoes =
-        Enum.zip([datas, chuvas, codigos])
-        |> Enum.map(fn {data, chuva, codigo} ->
-          icone = weather_icon(codigo)
-          "#{icone} #{data}: #{chuva} mm"
-        end)
+        Enum.zip(datas, chuvas)
+        |> Enum.map(fn {data, chuva} -> "#{data}: #{chuva} mm" end)
         |> Enum.join("\n")
 
-      "🌧️ **Previsão de chuva para #{nome} (#{dias} dias)**\n#{previsoes}"
+      "**Previsão de chuva para #{nome} (#{dias} dias)**\n#{previsoes}"
     else
-      :error        -> "❌ Número de dias inválido. Ex: `!prevchuva Fortaleza 5`"
-      {:error, msg} -> "❌ Erro: #{msg}"
+      :error        -> "Número de dias inválido. Ex: `!prevchuva Fortaleza 5`"
+      {:error, msg} -> "Erro: #{msg}"
     end
   end
 
@@ -153,7 +148,7 @@ defmodule MeuBot.Commands do
   def lembrar(user_id, texto) do
     user_key = Integer.to_string(user_id)
     Store.add(user_key, texto)
-    "✅ Anotado! Use `!lembretes` para ver suas anotações."
+    "Anotado! Use `!lembretes` para ver suas anotações."
   end
 
   def lembretes(user_id) do
@@ -161,7 +156,7 @@ defmodule MeuBot.Commands do
 
     case Store.get(user_key) do
       [] ->
-        "📭 Você não tem lembretes salvos. Use `!lembrar <texto>` para adicionar."
+        "Você não tem lembretes salvos. Use `!lembrar <texto>` para adicionar."
 
       lista ->
         itens =
@@ -170,14 +165,14 @@ defmodule MeuBot.Commands do
           |> Enum.map(fn {item, i} -> "#{i}. #{item}" end)
           |> Enum.join("\n")
 
-        "📋 **Seus lembretes:**\n#{itens}"
+        "**Seus lembretes:**\n#{itens}"
     end
   end
 
   def esquece(user_id) do
     user_key = Integer.to_string(user_id)
     Store.clear(user_key)
-    "🗑️ Lembretes apagados!"
+    "Lembretes apagados!"
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -195,9 +190,7 @@ defmodule MeuBot.Commands do
            timezone: "auto"
          ]),
          {:ok, clima_data} <- Jason.decode(body_clima),
-         temp   = get_in(clima_data, ["current", "temperature_2m"]),
-         codigo = get_in(clima_data, ["current", "weathercode"]),
-         icone  = weather_icon(codigo),
+         temp = get_in(clima_data, ["current", "temperature_2m"]),
          # 2ª API: Wikipedia summary da cidade
          cidade_enc = URI.encode(nome),
          {:ok, wiki_body} <- get("https://en.wikipedia.org/api/rest_v1/page/summary/#{cidade_enc}"),
@@ -205,14 +198,14 @@ defmodule MeuBot.Commands do
          resumo = Map.get(wiki_data, "extract", "Sem informações disponíveis."),
          resumo_curto = resumo |> String.split(". ") |> Enum.take(2) |> Enum.join(". ") do
       """
-      🌍 **#{nome}**
-      #{icone} Agora: #{temp}°C
+      **#{nome}**
+      Agora: #{temp}°C
 
-      📖 **Curiosidade:**
+      **Curiosidade:**
       #{resumo_curto}.
       """
     else
-      {:error, msg} -> "❌ Erro ao buscar curiosidade: #{msg}"
+      {:error, msg} -> "Erro ao buscar curiosidade: #{msg}"
     end
   end
 
@@ -265,13 +258,4 @@ defmodule MeuBot.Commands do
     end
   end
 
-  defp weather_icon(code) when code in [0] do "☀️" end
-  defp weather_icon(code) when code in [1, 2] do "⛅" end
-  defp weather_icon(code) when code in [3] do "☁️" end
-  defp weather_icon(code) when code in [45, 48] do "🌫️" end
-  defp weather_icon(code) when code in [51, 53, 55, 61, 63, 65] do "🌧️" end
-  defp weather_icon(code) when code in [71, 73, 75] do "❄️" end
-  defp weather_icon(code) when code in [80, 81, 82] do "🌦️" end
-  defp weather_icon(code) when code in [95, 96, 99] do "⛈️" end
-  defp weather_icon(_) do "🌡️" end
 end
